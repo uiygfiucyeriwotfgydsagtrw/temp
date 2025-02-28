@@ -7,5 +7,252 @@
 </head>
 <body>
     hello
+    <!--
+    <Window x:Class="moc_template.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:moc_template"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <TextBox x:Name="tbx_username" HorizontalAlignment="Center" Margin="0,176,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="140" MaxLength="15" MaxLines="1" TextChanged="tbx_username_TextChanged"/>
+        <TextBox x:Name="tbx_password" HorizontalAlignment="Center" Margin="0,199,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="140" MaxLength="15" MaxLines="1" TextChanged="tbx_password_TextChanged"/>
+        <Button x:Name="btn_login" Content="Login" HorizontalAlignment="Center" Margin="0,234,0,0" VerticalAlignment="Top" Height="25" Width="70" Click="btn_login_Click"/>
+        <Button x:Name="btn_createacc" Content="No Account? Create One" HorizontalAlignment="Center" Margin="0,264,0,0" VerticalAlignment="Top" Height="25" Width="160" Click="btn_createacc_Click"/>
+        <Label x:Name="lbl_username" Content="Username" HorizontalAlignment="Center" Margin="-80,172,0,0" VerticalAlignment="Top" IsHitTestVisible="False"/>
+        <Label x:Name="lbl_password" Content="Password" HorizontalAlignment="Center" Margin="-80,195,0,0" VerticalAlignment="Top" IsHitTestVisible="False"/>
+
+    </Grid>
+</Window>
+
+
+
+    using MySql.Data.MySqlClient;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using BCrypt.Net;
+
+
+namespace moc_template
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        private void tbx_username_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            lbl_username.Content = "";
+        }
+
+        private void tbx_password_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            lbl_password.Content = "";
+        }
+
+        private void btn_login_Click(object sender, RoutedEventArgs e)
+        {
+            string connectionString = "Server=127.0.0.1;Database=moc_template_db;User Id=root;";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = "SELECT * FROM login";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader["user_username"].ToString() == tbx_username.Text && BCrypt.Net.BCrypt.Verify(tbx_password.Text, reader["user_password"].ToString()))
+                            {
+                                Window win = new logged_in();
+                                win.Show();
+                                this.Close();
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error connecting to database: " + ex.Message);
+                }
+            }
+        }
+
+        private void btn_createacc_Click(object sender, RoutedEventArgs e)
+        {
+            Window win = new create_acc();
+            win.Show();
+            this.Close();
+        }
+    }
+}
+
+
+
+
+
+    <Window x:Class="moc_template.create_acc"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:moc_template"
+        mc:Ignorable="d"
+        Title="create_acc" Height="450" Width="800">
+    <Grid>
+        <TextBox x:Name="tbx_username" HorizontalAlignment="Center" Margin="0,176,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="140" MaxLength="15" MaxLines="1" TextChanged="tbx_username_TextChanged"/>
+        <TextBox x:Name="tbx_password" HorizontalAlignment="Center" Margin="0,199,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="140" MaxLength="15" MaxLines="1" TextChanged="tbx_password_TextChanged"/>
+        <TextBox x:Name="tbx_confirm_password" HorizontalAlignment="Center" Margin="0,222,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="140" MaxLength="15" MaxLines="1" TextChanged="tbx_confirm_password_TextChanged"/>
+        <Button x:Name="btn_create" Content="Create Account" HorizontalAlignment="Center" Margin="0,245,0,0" VerticalAlignment="Top" Height="25" Width="90" Click="btn_create_Click"/>
+        <Label x:Name="lbl_username" Content="Username" HorizontalAlignment="Center" Margin="-80,172,0,0" VerticalAlignment="Top" IsHitTestVisible="False"/>
+        <Label x:Name="lbl_password" Content="Password" HorizontalAlignment="Center" Margin="-80,195,0,0" VerticalAlignment="Top" IsHitTestVisible="False"/>
+        <Label x:Name="lbl_confirm_password" Content="Confirm Password" HorizontalAlignment="Center" Margin="-35,218,0,0" VerticalAlignment="Top" IsHitTestVisible="False"/>
+        <Button x:Name="btn_back" Content="back" HorizontalAlignment="Left" Margin="720,69,0,0" VerticalAlignment="Top" Click="btn_back_Click"/>
+    </Grid>
+</Window>
+
+
+
+
+
+
+
+    using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using BCrypt.Net;
+
+namespace moc_template
+{
+    /// <summary>
+    /// Interaction logic for create_acc.xaml
+    /// </summary>
+    public partial class create_acc : Window
+    {
+        public create_acc()
+        {
+            InitializeComponent();
+        }
+
+        private void tbx_username_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            lbl_username.Content = "";
+        }
+
+        private void tbx_password_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            lbl_password.Content = "";
+        }
+
+        private void tbx_confirm_password_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            lbl_confirm_password.Content = "";
+        }
+
+        private void btn_create_Click(object sender, RoutedEventArgs e)
+        {
+            // Validate input fields
+            if (string.IsNullOrWhiteSpace(tbx_username.Text) || string.IsNullOrWhiteSpace(tbx_password.Text))
+            {
+                MessageBox.Show("Username and password cannot be empty.");
+                return;
+            }
+
+            if (tbx_password.Text != tbx_confirm_password.Text)
+            {
+                MessageBox.Show("Passwords do not match.");
+                return;
+            }
+
+            string connectionString = "Server=127.0.0.1;Database=moc_template_db;User Id=root;";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+
+                    string checkQuery = "SELECT COUNT(*) FROM login WHERE user_username = @username";
+                    using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, conn))
+                    {
+                        checkCmd.Parameters.AddWithValue("@username", tbx_username.Text);
+                        int userExists = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                        if (userExists > 0)
+                        {
+                            MessageBox.Show("User already exists.");
+                            return;
+                        }
+                    }
+
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(tbx_password.Text);
+
+                    string insertQuery = "INSERT INTO login (user_username, user_password) VALUES (@username, @password)";
+                    using (MySqlCommand insertCmd = new MySqlCommand(insertQuery, conn))
+                    {
+                        insertCmd.Parameters.AddWithValue("@username", tbx_username.Text);
+                        insertCmd.Parameters.AddWithValue("@password", hashedPassword);
+
+                        int rowsAffected = insertCmd.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                        {
+                            MessageBox.Show("Account successfully created.");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Account creation failed.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error connecting to database: " + ex.Message);
+                }
+            }
+        
+    }
+
+    private void btn_back_Click(object sender, RoutedEventArgs e)
+        {
+            Window win = new MainWindow();
+            win.Show();
+            this.Close();
+        }
+    }
+}
+
+
+
+    -->
 </body>
 </html>
